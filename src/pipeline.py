@@ -3,7 +3,6 @@
 Usage:
     python -m src.pipeline run --inbox PATH --week WEEK [--select all|id1,id2,...] [--data-root data]
 """
-import json
 import os
 import sys
 from pathlib import Path
@@ -35,7 +34,7 @@ def _analyze_one(video: Path, analyzed_dir: Path, language: str = "zh") -> ClipM
     transcript_segments: list[dict] = []
     if os.environ.get("WHISPER_BIN") and os.environ.get("WHISPER_MODEL"):
         try:
-            transcript_segments = transcribe(video, language=language)
+            transcript_segments = transcribe(video, language=language, out_dir=analyzed_dir)
         except Exception as e:
             click.echo(f"  ASR failed for {clip_id}: {e}", err=True)
     cm.transcript = [TranscriptSegment(**s) for s in transcript_segments]

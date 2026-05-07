@@ -14,7 +14,10 @@ def get_raw_metadata(video_path: Path) -> dict:
         "-show_format", "-show_streams",
         str(video_path),
     ]
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"ffprobe failed on {video_path}: {e.stderr}") from e
     return json.loads(result.stdout)
 
 
@@ -72,4 +75,8 @@ def generate_gif_preview(
         "-loop", "0",
         str(output_path),
     ]
-    subprocess.run(cmd, check=True, capture_output=True)
+    try:
+        subprocess.run(cmd, check=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
+        stderr = e.stderr.decode(errors="replace") if e.stderr else ""
+        raise RuntimeError(f"ffmpeg gif failed on {video_path}: {stderr}") from e

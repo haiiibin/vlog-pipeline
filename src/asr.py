@@ -1,7 +1,7 @@
 """whisper.cpp subprocess wrapper.
 
 Requires env vars:
-    WHISPER_BIN   — path to whisper.cpp `main` binary
+    WHISPER_BIN   — path to whisper.cpp `whisper-cli` (or older `main`) binary
     WHISPER_MODEL — path to ggml model (e.g. ggml-large-v3.bin)
 """
 import json
@@ -17,14 +17,26 @@ def parse_timestamp(ts: str) -> float:
     return int(h) * 3600 + int(m) * 60 + int(s) + int(ms) / 1000.0
 
 
-def transcribe(audio_path: Path, language: str = "zh") -> list[dict]:
-    """Return [{start, end, text}, ...]. Empty list if no speech."""
+def transcribe(
+    audio_path: Path,
+    language: str = "zh",
+    out_dir: Path | None = None,
+) -> list[dict]:
+    """Return [{start, end, text}, ...]. Empty list if no speech.
+
+    If `out_dir` is provided, whisper writes its sidecar JSON there
+    (using the audio file's stem as base name). Otherwise it writes
+    next to the audio file.
+    """
     bin_path = os.environ.get("WHISPER_BIN")
     model_path = os.environ.get("WHISPER_MODEL")
     if not bin_path or not model_path:
         raise RuntimeError("WHISPER_BIN and WHISPER_MODEL env vars must be set")
 
-    out_prefix = audio_path.with_suffix("")
+    prefix_dir = out_dir if out_dir is not None else audio_path.parent
+    prefix_dir.mkdir(parents=True, exist_ok=True)
+    out_prefix = prefix_dir / audio_path.stem
+
     cmd = [
         bin_path,
         "-m", model_path,
@@ -33,9 +45,13 @@ def transcribe(audio_path: Path, language: str = "zh") -> list[dict]:
         "-of", str(out_prefix),
         str(audio_path),
     ]
-    subprocess.run(cmd, check=True, capture_output=True)
+    try:
+        subprocess.run(cmd, check=True, capture_output=True)
+    except subprocess.CalledProcessError as e:
+        stderr = e.stderr.decode(errors="replace") if e.stderr else ""
+        raise RuntimeError(f"whisper failed: {stderr}") from e
 
-    json_path = out_prefix.with_suffix(out_prefix.suffix + ".json")
+    json_path = Path(str(out_prefix) + ".json")
     if not json_path.exists():
         return []
 
