@@ -1,4 +1,5 @@
 """ffmpeg-based timeline compositor. Outputs 1080x1920 H.264 mp4."""
+import platform
 import subprocess
 import tempfile
 from pathlib import Path
@@ -9,12 +10,22 @@ TARGET_H = 1920
 SUBTITLE_FONT_SIZE = 56
 HOOK_FONT_SIZE = 90
 
+# On Windows, fontconfig often can't find its config file and crashes ffmpeg drawtext.
+# Bypass by specifying an explicit font file (Microsoft YaHei Bold for CJK support).
+_WINDOWS_FONT = "C\\:/Windows/Fonts/msyhbd.ttc"
+
+
+def _fontfile_clause() -> str:
+    if platform.system() == "Windows":
+        return f":fontfile='{_WINDOWS_FONT}'"
+    return ""
+
 
 def _drawtext_filter_textfile(textfile: Path, fontsize: int, y_expr: str) -> str:
     """Build a drawtext filter that reads text from a file (sidesteps all quoting)."""
-    # Forward-slash the path so it works on Windows too inside ffmpeg.
     safe_path = str(textfile).replace("\\", "/").replace(":", "\\:")
     return (f"drawtext=textfile='{safe_path}'"
+            f"{_fontfile_clause()}"
             f":fontcolor=white:fontsize={fontsize}"
             f":borderw=4:bordercolor=black"
             f":x=(w-text_w)/2:y={y_expr}")

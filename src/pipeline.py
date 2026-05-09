@@ -50,7 +50,7 @@ def _analyze_one(video: Path, analyzed_dir: Path, language: str = "zh") -> ClipM
     except Exception as e:
         click.echo(f"  GIF failed for {clip_id}: {e}", err=True)
 
-    out_json.write_text(cm.model_dump_json(indent=2))
+    out_json.write_text(cm.model_dump_json(indent=2), encoding="utf-8")
     return cm
 
 
@@ -102,7 +102,7 @@ def run(inbox: Path, week: str, select: str, data_root: Path, language: str):
 
     click.echo(f"Composing timeline from {len(selected)} clips...")
     timeline = build_simple_timeline(selected, week=week)
-    (work_dir / "timeline.json").write_text(timeline.model_dump_json(indent=2))
+    (work_dir / "timeline.json").write_text(timeline.model_dump_json(indent=2), encoding="utf-8")
 
     output_path = output_dir / f"{week}_vlog.mp4"
     click.echo(f"Rendering -> {output_path}")

@@ -1,5 +1,3 @@
-import json
-from pathlib import Path
 import pytest
 from src.probe import get_raw_metadata, build_clip_metadata, generate_gif_preview
 

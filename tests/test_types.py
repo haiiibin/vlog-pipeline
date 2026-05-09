@@ -1,4 +1,3 @@
-import json
 from src.types import ClipMetadata, Timeline, TimelineClip, TextCard, TranscriptSegment
 
 
