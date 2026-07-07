@@ -1,16 +1,26 @@
 """FastAPI candidate-pool server (Phase 2). App factory closes over data_root."""
 import json
 import os
+import re
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from src.types import ClipMetadata
 
 INDEX_HTML_PATH = Path(__file__).parent / "static" / "index.html"
+
+_WEEK_RE = re.compile(r"[A-Za-z0-9_-]{1,64}")
+
+
+def _validate_week(week: str) -> str:
+    """Reject week tags that are not a single safe path segment."""
+    if not _WEEK_RE.fullmatch(week):
+        raise HTTPException(status_code=400, detail=f"invalid week tag: {week!r}")
+    return week
 
 
 class Selection(BaseModel):
@@ -36,7 +46,7 @@ def create_app(data_root: Path) -> FastAPI:
 
     @app.get("/api/clips")
     def list_clips(week: str | None = None):
-        wk = week or default_week()
+        wk = _validate_week(week or default_week())
         adir = _analyzed_dir(wk)
         clips: list[dict] = []
         if adir.is_dir():
@@ -54,6 +64,7 @@ def create_app(data_root: Path) -> FastAPI:
 
     @app.post("/api/select")
     def save_selection(sel: Selection):
+        _validate_week(sel.week)
         (work_root / sel.week).mkdir(parents=True, exist_ok=True)
         payload = {
             "week": sel.week,

@@ -70,3 +70,10 @@ def test_select_roundtrip_and_overwrite(tmp_path):
 
     body = client.get("/api/clips", params={"week": "w1"}).json()
     assert body["selected_ids"] == ["AAA"]
+
+
+def test_invalid_week_rejected(tmp_path):
+    client = TestClient(create_app(tmp_path / "data"))
+    assert client.get("/api/clips", params={"week": "../evil"}).status_code == 400
+    assert client.post("/api/select",
+                       json={"week": "..\\evil", "clip_ids": []}).status_code == 400
