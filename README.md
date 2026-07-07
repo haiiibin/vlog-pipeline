@@ -34,11 +34,10 @@ web UI (FastAPI, localhost:8765)
 uv sync --extra dev
 uv run pytest                       # sanity check
 
-# analyze a folder of clips and render everything in one go
+# 1. analyze clips and render an all-in first draft
 uv run python -m src.pipeline run --inbox path/to/clips --week 2026-W28 --select all
 
-# or: analyze first, then pick clips in the browser
-uv run python -m src.pipeline run --inbox path/to/clips --week 2026-W28 --select all
+# 2. (optional) refine: open the browser, pick the keepers, re-render just those
 uv run python -m src.pipeline serve --week 2026-W28
 ```
 

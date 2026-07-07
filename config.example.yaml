@@ -1,7 +1,7 @@
 # Copy to config.yaml and edit. config.yaml is gitignored.
 # NOTE: Phase 1/2 read CLI flags and env vars only; this file becomes
-# authoritative in Phase 4 (scheduling / platform adapters). Fields mirror
-# docs/DESIGN.md section 8.
+# authoritative in Phase 4 (scheduling / platform adapters). It is a
+# forward-looking sketch; docs/DESIGN.md section 8 has the fuller schema.
 
 platform: "pc"                 # "mac" | "pc"
 
