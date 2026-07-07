@@ -112,3 +112,10 @@ def test_render_failure_surfaces_error(tmp_path):
     r = client.post("/api/render", json={"week": "w1"})
     assert r.status_code == 500
     assert "ffmpeg" in r.json()["detail"].lower()
+
+
+def test_index_serves_ui(tmp_path):
+    client = TestClient(create_app(tmp_path / "data"))
+    r = client.get("/")
+    assert r.status_code == 200
+    assert "生成成片" in r.text

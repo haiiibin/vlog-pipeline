@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -49,6 +50,10 @@ def create_app(data_root: Path) -> FastAPI:
 
     def _selected_path(week: str) -> Path:
         return work_root / week / "selected.json"
+
+    @app.get("/", response_class=HTMLResponse)
+    def index():
+        return INDEX_HTML_PATH.read_text(encoding="utf-8")
 
     @app.get("/api/clips")
     def list_clips(week: str | None = None):

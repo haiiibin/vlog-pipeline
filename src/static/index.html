@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>vlog 候选池</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+         background: #14161a; color: #e8e8e8; padding-bottom: 84px; }
+  header { padding: 16px 24px; border-bottom: 1px solid #2a2d33;
+           display: flex; justify-content: space-between; align-items: baseline; }
+  h1 { font-size: 18px; margin: 0; }
+  .day { padding: 0 24px; }
+  .day h2 { font-size: 14px; color: #9aa0a8; margin: 16px 0 8px; }
+  .card { display: flex; gap: 14px; padding: 10px; border: 1px solid #2a2d33;
+          border-radius: 10px; margin-bottom: 8px; align-items: center;
+          background: #1b1e24; cursor: pointer; }
+  .card.checked { border-color: #4c8dff; background: #1d2533; }
+  .card input[type=checkbox] { width: 18px; height: 18px; flex: none; }
+  .thumb { width: 120px; height: 68px; object-fit: cover; border-radius: 6px;
+           background: #000; flex: none; }
+  div.thumb { display: flex; align-items: center; justify-content: center;
+              color: #555; font-size: 12px; }
+  .info { flex: 1; min-width: 0; }
+  .meta { font-size: 13px; color: #9aa0a8; }
+  .transcript { font-size: 14px; margin-top: 4px; white-space: nowrap;
+                overflow: hidden; text-overflow: ellipsis; }
+  .score { flex: none; font-weight: 600; padding: 4px 10px; border-radius: 999px;
+           font-size: 13px; background: #2a2d33; }
+  .score.hi { background: #1f4d2e; color: #7ee2a0; }
+  .score.mid { background: #4d3d1f; color: #e2c67e; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; background: #1b1e24;
+           border-top: 1px solid #2a2d33; padding: 14px 24px; display: flex;
+           justify-content: space-between; align-items: center; gap: 16px; }
+  button { background: #4c8dff; border: 0; color: white; font-size: 15px;
+           padding: 10px 22px; border-radius: 8px; cursor: pointer; }
+  button:disabled { background: #333; color: #777; cursor: wait; }
+  #result { padding: 12px 24px 24px; white-space: pre-wrap;
+            font-family: Consolas, monospace; font-size: 13px; }
+  #result.err { color: #ff7b72; }
+  #result.ok { color: #7ee2a0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>本周 vlog 候选 · <span id="week"></span></h1>
+  <div class="meta" id="clipcount"></div>
+</header>
+<main id="groups"></main>
+<div id="result"></div>
+<footer>
+  <div id="status">已勾选 0 / 0</div>
+  <button id="go">生成成片</button>
+</footer>
+<script>
+const weekParam = new URLSearchParams(location.search).get("week");
+// 与 src/compose.py 的常量保持一致: DEFAULT_MAX_CLIP_SEC=8, hook 2.5s + outro 1.5s
+const MAX_CLIP_SEC = 8, CARDS_SEC = 4;
+let clips = [], selected = new Set(), currentWeek = "";
+
+function fmtDuration(s) {
+  return s >= 60 ? `${Math.floor(s / 60)}分${Math.round(s % 60)}秒` : `${Math.round(s)}秒`;
+}
+
+async function load() {
+  const q = weekParam ? `?week=${encodeURIComponent(weekParam)}` : "";
+  const body = await (await fetch(`/api/clips${q}`)).json();
+  currentWeek = body.week;
+  clips = body.clips;
+  selected = new Set(body.selected_ids);
+  document.getElementById("week").textContent = currentWeek;
+  document.getElementById("clipcount").textContent = `${clips.length} 个候选片段`;
+  renderGroups();
+}
+
+function renderGroups() {
+  const groups = {};
+  for (const c of clips) (groups[c.captured_at.slice(0, 10)] ??= []).push(c);
+  const root = document.getElementById("groups");
+  root.innerHTML = "";
+  for (const day of Object.keys(groups).sort()) {
+    const div = document.createElement("div");
+    div.className = "day";
+    div.innerHTML = `<h2>${day}（${groups[day].length}）</h2>`;
+    for (const c of groups[day].sort((a, b) => b.score - a.score)) div.appendChild(card(c));
+    root.appendChild(div);
+  }
+  updateStatus();
+}
+
+function card(c) {
+  const el = document.createElement("label");
+  el.className = "card" + (selected.has(c.id) ? " checked" : "");
+  const thumb = c.gif_url
+    ? `<img class="thumb" loading="lazy" src="${c.gif_url}" alt="">`
+    : `<div class="thumb">无预览</div>`;
+  const text = (c.transcript || []).map(t => t.text).join(" ") || "（无口播）";
+  const scoreCls = c.score >= 70 ? "hi" : c.score >= 50 ? "mid" : "";
+  el.innerHTML = `
+    <input type="checkbox" ${selected.has(c.id) ? "checked" : ""}>
+    ${thumb}
+    <div class="info">
+      <div class="meta">${c.id} · ${c.captured_at.replace("T", " ").slice(0, 16)} · ${c.duration_sec.toFixed(1)}s</div>
+      <div class="transcript">${text}</div>
+    </div>
+    <div class="score ${scoreCls}">${c.score}</div>`;
+  el.querySelector("input").addEventListener("change", (e) => {
+    e.target.checked ? selected.add(c.id) : selected.delete(c.id);
+    el.classList.toggle("checked", e.target.checked);
+    updateStatus();
+    queueSave();
+  });
+  return el;
+}
+
+function updateStatus() {
+  const total = clips.filter(c => selected.has(c.id))
+                     .reduce((s, c) => s + Math.min(c.duration_sec, MAX_CLIP_SEC), 0);
+  const est = selected.size ? ` · 预估 ${fmtDuration(total + CARDS_SEC)}` : "";
+  document.getElementById("status").textContent =
+    `已勾选 ${selected.size} / ${clips.length}${est}`;
+}
+
+let saveTimer;
+function saveSelection() {
+  return fetch("/api/select", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ week: currentWeek, clip_ids: [...selected] }),
+  });
+}
+function queueSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveSelection, 500);
+}
+
+document.getElementById("go").addEventListener("click", async () => {
+  const btn = document.getElementById("go"), out = document.getElementById("result");
+  if (!selected.size) { out.className = "err"; out.textContent = "先勾选至少一个片段"; return; }
+  btn.disabled = true; btn.textContent = "渲染中…";
+  out.className = ""; out.textContent = "";
+  clearTimeout(saveTimer);
+  try {
+    await saveSelection();
+    const r = await fetch("/api/render", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ week: currentWeek }),
+    });
+    const body = await r.json();
+    if (!r.ok) throw new Error(body.detail || JSON.stringify(body));
+    out.className = "ok";
+    out.textContent = `成片完成: ${body.output}（约 ${body.estimated_duration_sec} 秒）`;
+  } catch (e) {
+    out.className = "err";
+    out.textContent = `渲染失败:\n${e.message}`;
+  } finally {
+    btn.disabled = false; btn.textContent = "生成成片";
+  }
+});
+
+load();
+</script>
+</body>
+</html>
