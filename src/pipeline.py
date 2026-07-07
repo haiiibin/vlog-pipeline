@@ -127,8 +127,21 @@ def serve(week: str | None, data_root: Path, port: int, no_browser: bool):
     wk = week or default_week()
     url = f"http://127.0.0.1:{port}/?week={wk}"
     click.echo(f"Candidate pool for {wk}: {url}")
+    def _open_when_ready() -> None:
+        import socket
+        import time
+
+        deadline = time.monotonic() + 10.0
+        while time.monotonic() < deadline:
+            try:
+                with socket.create_connection(("127.0.0.1", port), timeout=0.25):
+                    webbrowser.open(url)
+                    return
+            except OSError:
+                time.sleep(0.25)
+
     if not no_browser:
-        threading.Timer(1.0, webbrowser.open, args=[url]).start()
+        threading.Thread(target=_open_when_ready, daemon=True).start()
     uvicorn.run(create_app(data_root), host="127.0.0.1", port=port)
 
 
