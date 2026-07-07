@@ -77,3 +77,38 @@ def test_invalid_week_rejected(tmp_path):
     assert client.get("/api/clips", params={"week": "../evil"}).status_code == 400
     assert client.post("/api/select",
                        json={"week": "..\\evil", "clip_ids": []}).status_code == 400
+
+
+def test_render_no_selection_400(tmp_path):
+    client = TestClient(create_app(tmp_path / "data"))
+    r = client.post("/api/render", json={"week": "w1"})
+    assert r.status_code == 400
+
+
+def test_render_happy_path(tmp_path, tmp_video_factory):
+    from src.probe import build_clip_metadata
+    data = tmp_path / "data"
+    analyzed = data / "work" / "w1" / "analyzed"
+    analyzed.mkdir(parents=True)
+    video = tmp_video_factory("CLIP1.mp4", duration=2.0)
+    cm = build_clip_metadata(video, clip_id="CLIP1")
+    (analyzed / "CLIP1.json").write_text(cm.model_dump_json(), encoding="utf-8")
+
+    client = TestClient(create_app(data))
+    client.post("/api/select", json={"week": "w1", "clip_ids": ["CLIP1"]})
+    r = client.post("/api/render", json={"week": "w1"})
+    assert r.status_code == 200, r.text
+    out = Path(r.json()["output"])
+    assert out.exists() and out.stat().st_size > 0
+    assert (data / "work" / "w1" / "timeline.json").exists()
+
+
+def test_render_failure_surfaces_error(tmp_path):
+    data = tmp_path / "data"
+    analyzed = data / "work" / "w1" / "analyzed"
+    _write_meta(analyzed, "GONE", path=str(data / "does-not-exist.mp4"))
+    client = TestClient(create_app(data))
+    client.post("/api/select", json={"week": "w1", "clip_ids": ["GONE"]})
+    r = client.post("/api/render", json={"week": "w1"})
+    assert r.status_code == 500
+    assert "ffmpeg" in r.json()["detail"].lower()

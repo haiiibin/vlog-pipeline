@@ -9,6 +9,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
+from src.compose import build_simple_timeline
+from src.render import render_timeline
 from src.types import ClipMetadata
 
 INDEX_HTML_PATH = Path(__file__).parent / "static" / "index.html"
@@ -26,6 +28,10 @@ def _validate_week(week: str) -> str:
 class Selection(BaseModel):
     week: str
     clip_ids: list[str]
+
+
+class RenderRequest(BaseModel):
+    week: str
 
 
 def default_week() -> str:
@@ -76,6 +82,38 @@ def create_app(data_root: Path) -> FastAPI:
         tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         os.replace(tmp, target)
         return {"ok": True, "count": len(sel.clip_ids)}
+
+    @app.post("/api/render")
+    def render(req: RenderRequest):
+        _validate_week(req.week)
+        sp = _selected_path(req.week)
+        if not sp.exists():
+            raise HTTPException(status_code=400, detail=f"no selection for week {req.week}")
+        clip_ids = json.loads(sp.read_text(encoding="utf-8")).get("clip_ids", [])
+        if not clip_ids:
+            raise HTTPException(status_code=400, detail="selection is empty")
+
+        adir = _analyzed_dir(req.week)
+        clips: list[ClipMetadata] = []
+        for cid in clip_ids:
+            mp = adir / f"{cid}.json"
+            if not mp.exists():
+                raise HTTPException(status_code=400, detail=f"unknown clip id: {cid}")
+            clips.append(ClipMetadata.model_validate_json(mp.read_text(encoding="utf-8")))
+
+        timeline = build_simple_timeline(clips, week=req.week)
+        (work_root / req.week / "timeline.json").write_text(
+            timeline.model_dump_json(indent=2), encoding="utf-8")
+
+        out_dir = data_root / "output"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / f"{req.week}_vlog.mp4"
+        try:
+            render_timeline(timeline, adir, out_path)
+        except RuntimeError as e:
+            raise HTTPException(status_code=500, detail=str(e)) from e
+        return {"ok": True, "output": str(out_path),
+                "estimated_duration_sec": timeline.estimated_duration_sec}
 
     app.mount("/media", StaticFiles(directory=work_root), name="media")
     return app
