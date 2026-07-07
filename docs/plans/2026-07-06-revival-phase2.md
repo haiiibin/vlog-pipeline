@@ -19,7 +19,7 @@
 - 测试不得依赖 whisper 模型; 需要视频时用 conftest 的 `tmp_video_factory`(ffmpeg lavfi 合成)
 - commit message 沿用仓库惯例(`feat:` / `fix:` / `docs:` / `test:` / `chore:` 前缀), 结尾加 `Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>`
 - ruff: line-length 100, target py311(pyproject 已配)
-- 所有新文档禁用 em dash(—)
+- 所有新文档禁用 em dash (长破折号)
 
 ## 对 spec 的三处已确认偏差
 

@@ -114,6 +114,20 @@ def test_render_failure_surfaces_error(tmp_path):
     assert "ffmpeg" in r.json()["detail"].lower()
 
 
+def test_render_malformed_metadata_returns_json_500(tmp_path):
+    """A corrupt analyzed json must yield a JSON {detail} 500, not a text/plain crash."""
+    data = tmp_path / "data"
+    analyzed = data / "work" / "w1" / "analyzed"
+    analyzed.mkdir(parents=True)
+    (analyzed / "BAD.json").write_text("{not valid json", encoding="utf-8")
+    client = TestClient(create_app(data))
+    client.post("/api/select", json={"week": "w1", "clip_ids": ["BAD"]})
+    r = client.post("/api/render", json={"week": "w1"})
+    assert r.status_code == 500
+    assert r.headers["content-type"].startswith("application/json")
+    assert "detail" in r.json()
+
+
 def test_index_serves_ui(tmp_path):
     client = TestClient(create_app(tmp_path / "data"))
     r = client.get("/")

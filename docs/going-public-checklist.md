@@ -8,6 +8,7 @@
 - [ ] 确认 data/、models/、config.yaml 从未进过历史:
       `git log --all --name-only --pretty=format: | sort -u` 无这三类路径
 - [ ] README/docs 里的截图与 demo 素材不含真实生活片段(用 lavfi 合成视频演示)
+- [ ] 清扫 docs/ 里的 em dash(导入的 docs/DESIGN.md 尚有长破折号): `grep -rn '—' docs/` 应为空
 - [ ] LICENSE 年份与署名正确
 - [ ] GitHub repo description 与 topics 已写好(作品集口径, 对齐 ai-job-hunt-pipeline 风格)
 - [ ] 执行: `gh repo edit haiiibin/vlog-pipeline --visibility public`

@@ -99,23 +99,27 @@ def create_app(data_root: Path) -> FastAPI:
             raise HTTPException(status_code=400, detail="selection is empty")
 
         adir = _analyzed_dir(req.week)
-        clips: list[ClipMetadata] = []
-        for cid in clip_ids:
-            mp = adir / f"{cid}.json"
-            if not mp.exists():
-                raise HTTPException(status_code=400, detail=f"unknown clip id: {cid}")
-            clips.append(ClipMetadata.model_validate_json(mp.read_text(encoding="utf-8")))
-
-        timeline = build_simple_timeline(clips, week=req.week)
-        (work_root / req.week / "timeline.json").write_text(
-            timeline.model_dump_json(indent=2), encoding="utf-8")
-
-        out_dir = data_root / "output"
-        out_dir.mkdir(parents=True, exist_ok=True)
-        out_path = out_dir / f"{req.week}_vlog.mp4"
         try:
+            clips: list[ClipMetadata] = []
+            for cid in clip_ids:
+                mp = adir / f"{cid}.json"
+                if not mp.exists():
+                    raise HTTPException(status_code=400, detail=f"unknown clip id: {cid}")
+                clips.append(ClipMetadata.model_validate_json(mp.read_text(encoding="utf-8")))
+
+            timeline = build_simple_timeline(clips, week=req.week)
+            (work_root / req.week / "timeline.json").write_text(
+                timeline.model_dump_json(indent=2), encoding="utf-8")
+
+            out_dir = data_root / "output"
+            out_dir.mkdir(parents=True, exist_ok=True)
+            out_path = out_dir / f"{req.week}_vlog.mp4"
             render_timeline(timeline, adir, out_path)
-        except RuntimeError as e:
+        except HTTPException:
+            raise
+        except Exception as e:
+            # Any non-HTTP failure (malformed metadata, render, disk) becomes a JSON
+            # 500 so the browser gets {detail}, never a text/plain body it can't parse.
             raise HTTPException(status_code=500, detail=str(e)) from e
         return {"ok": True, "output": str(out_path),
                 "estimated_duration_sec": timeline.estimated_duration_sec}
