@@ -90,3 +90,12 @@ def test_idempotent_rerun(tmp_path):
     mtime_second = json_path.stat().st_mtime
     # File was reused, not rewritten
     assert mtime_second == mtime_first
+
+
+def test_serve_command_registered():
+    """serve exists and exposes the expected options (does not start the server)."""
+    runner = CliRunner()
+    result = runner.invoke(cli, ["serve", "--help"])
+    assert result.exit_code == 0
+    for opt in ["--week", "--data-root", "--port", "--no-browser"]:
+        assert opt in result.output

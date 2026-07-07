@@ -110,5 +110,27 @@ def run(inbox: Path, week: str, select: str, data_root: Path, language: str):
     click.echo(f"Done: {output_path}")
 
 
+@cli.command()
+@click.option("--week", default=None, help="Week tag; default = current ISO week")
+@click.option("--data-root", type=click.Path(path_type=Path), default=Path("data"))
+@click.option("--port", default=8765, type=int, show_default=True)
+@click.option("--no-browser", is_flag=True, help="Do not auto-open the browser")
+def serve(week: str | None, data_root: Path, port: int, no_browser: bool):
+    """Start the candidate-pool web UI (Phase 2)."""
+    import threading
+    import webbrowser
+
+    import uvicorn
+
+    from src.server import create_app, default_week
+
+    wk = week or default_week()
+    url = f"http://127.0.0.1:{port}/?week={wk}"
+    click.echo(f"Candidate pool for {wk}: {url}")
+    if not no_browser:
+        threading.Timer(1.0, webbrowser.open, args=[url]).start()
+    uvicorn.run(create_app(data_root), host="127.0.0.1", port=port)
+
+
 if __name__ == "__main__":
     cli()
