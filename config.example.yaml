@@ -1,0 +1,19 @@
+# Copy to config.yaml and edit. config.yaml is gitignored.
+# NOTE: Phase 1/2 read CLI flags and env vars only; this file becomes
+# authoritative in Phase 4 (scheduling / platform adapters). Fields mirror
+# docs/DESIGN.md section 8.
+
+platform: "pc"                 # "mac" | "pc"
+
+inbox_source:
+  mac: "~/vlog-inbox"
+  pc: "C:/Users/<you>/vlog-inbox"
+
+whisper:
+  bin: "C:/tools/whisper.cpp/whisper-cli.exe"   # or /opt/homebrew/bin/whisper-cli
+  model: "models/ggml-large-v3.bin"
+  language: "zh"
+
+render:
+  target_duration_sec: [60, 180]
+  target_aspect: "9:16"
