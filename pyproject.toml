@@ -10,6 +10,7 @@ dependencies = [
     "scenedetect[opencv]>=0.6.4",
     "fastapi>=0.110",
     "uvicorn>=0.29",
+    "librosa>=0.11.0",
 ]
 
 [project.optional-dependencies]
