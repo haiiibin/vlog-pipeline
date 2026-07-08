@@ -40,11 +40,16 @@ def _analyze_one(video: Path, analyzed_dir: Path, language: str = "zh") -> ClipM
             click.echo(f"  ASR failed for {clip_id}: {e}", err=True)
     cm.transcript = [TranscriptSegment(**s) for s in transcript_segments]
 
-    audio_features = analyze_audio(video)
+    audio_features: dict = {}
+    try:
+        audio_features = analyze_audio(video)
+    except Exception as e:
+        click.echo(f"  audio failed for {clip_id}: {e}", err=True)
+    cm.audio = audio_features
+
     score, breakdown = compute_score(raw, transcript_segments, audio_features)
     cm.score = score
     cm.score_breakdown = breakdown
-    cm.audio = audio_features
 
     gif_path = analyzed_dir / f"{clip_id}.gif"
     try:
