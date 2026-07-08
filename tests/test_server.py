@@ -5,6 +5,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
+from src.compose import build_simple_timeline
 from src.server import create_app, default_week
 from src.types import ClipMetadata
 
@@ -94,7 +95,7 @@ def test_render_happy_path(tmp_path, tmp_video_factory):
     cm = build_clip_metadata(video, clip_id="CLIP1")
     (analyzed / "CLIP1.json").write_text(cm.model_dump_json(), encoding="utf-8")
 
-    client = TestClient(create_app(data))
+    client = TestClient(create_app(data, compose_fn=build_simple_timeline))
     client.post("/api/select", json={"week": "w1", "clip_ids": ["CLIP1"]})
     r = client.post("/api/render", json={"week": "w1"})
     assert r.status_code == 200, r.text
@@ -107,7 +108,7 @@ def test_render_failure_surfaces_error(tmp_path):
     data = tmp_path / "data"
     analyzed = data / "work" / "w1" / "analyzed"
     _write_meta(analyzed, "GONE", path=str(data / "does-not-exist.mp4"))
-    client = TestClient(create_app(data))
+    client = TestClient(create_app(data, compose_fn=build_simple_timeline))
     client.post("/api/select", json={"week": "w1", "clip_ids": ["GONE"]})
     r = client.post("/api/render", json={"week": "w1"})
     assert r.status_code == 500
@@ -120,7 +121,7 @@ def test_render_malformed_metadata_returns_json_500(tmp_path):
     analyzed = data / "work" / "w1" / "analyzed"
     analyzed.mkdir(parents=True)
     (analyzed / "BAD.json").write_text("{not valid json", encoding="utf-8")
-    client = TestClient(create_app(data))
+    client = TestClient(create_app(data, compose_fn=build_simple_timeline))
     client.post("/api/select", json={"week": "w1", "clip_ids": ["BAD"]})
     r = client.post("/api/render", json={"week": "w1"})
     assert r.status_code == 500
@@ -133,3 +134,22 @@ def test_index_serves_ui(tmp_path):
     r = client.get("/")
     assert r.status_code == 200
     assert "生成成片" in r.text
+
+
+def test_render_compose_failure_returns_500(tmp_path, tmp_video_factory):
+    from src.probe import build_clip_metadata
+    data = tmp_path / "data"
+    analyzed = data / "work" / "w1" / "analyzed"
+    analyzed.mkdir(parents=True)
+    video = tmp_video_factory("CLIP1.mp4", duration=2.0)
+    cm = build_clip_metadata(video, clip_id="CLIP1")
+    (analyzed / "CLIP1.json").write_text(cm.model_dump_json(), encoding="utf-8")
+
+    def _boom(clips, week):
+        raise RuntimeError("claude boom")
+
+    client = TestClient(create_app(data, compose_fn=_boom))
+    client.post("/api/select", json={"week": "w1", "clip_ids": ["CLIP1"]})
+    r = client.post("/api/render", json={"week": "w1"})
+    assert r.status_code == 500
+    assert "claude boom" in r.json()["detail"]

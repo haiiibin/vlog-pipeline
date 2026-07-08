@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from src.compose import build_simple_timeline
+from src.cutlist import generate_cutlist
 from src.render import render_timeline
 from src.types import ClipMetadata
 
@@ -40,7 +40,7 @@ def default_week() -> str:
     return f"{iso.year}-W{iso.week:02d}"
 
 
-def create_app(data_root: Path) -> FastAPI:
+def create_app(data_root: Path, *, compose_fn=generate_cutlist) -> FastAPI:
     app = FastAPI(title="vlog-pipeline candidate pool")
     work_root = data_root / "work"
     work_root.mkdir(parents=True, exist_ok=True)
@@ -107,7 +107,7 @@ def create_app(data_root: Path) -> FastAPI:
                     raise HTTPException(status_code=400, detail=f"unknown clip id: {cid}")
                 clips.append(ClipMetadata.model_validate_json(mp.read_text(encoding="utf-8")))
 
-            timeline = build_simple_timeline(clips, week=req.week)
+            timeline = compose_fn(clips, week=req.week)
             (work_root / req.week / "timeline.json").write_text(
                 timeline.model_dump_json(indent=2), encoding="utf-8")
 
