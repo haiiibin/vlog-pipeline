@@ -21,6 +21,7 @@ class ClipMetadata(BaseModel):
     transcript: list[TranscriptSegment] = []
     score: int = 0
     score_breakdown: dict[str, int] = {}
+    audio: dict[str, float] = {}   # {"rms_peak": ..., "rms_mean": ...}; {} if no audio
     preview_gif: str | None = None
 
 

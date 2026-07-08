@@ -11,6 +11,7 @@ import click
 from src.probe import build_clip_metadata, generate_gif_preview, get_raw_metadata
 from src.scene import detect_scenes
 from src.asr import transcribe
+from src.audio import analyze_audio
 from src.score import compute_score
 from src.compose import build_simple_timeline
 from src.render import render_timeline
@@ -39,9 +40,11 @@ def _analyze_one(video: Path, analyzed_dir: Path, language: str = "zh") -> ClipM
             click.echo(f"  ASR failed for {clip_id}: {e}", err=True)
     cm.transcript = [TranscriptSegment(**s) for s in transcript_segments]
 
-    score, breakdown = compute_score(raw, transcript_segments)
+    audio_features = analyze_audio(video)
+    score, breakdown = compute_score(raw, transcript_segments, audio_features)
     cm.score = score
     cm.score_breakdown = breakdown
+    cm.audio = audio_features
 
     gif_path = analyzed_dir / f"{clip_id}.gif"
     try:
