@@ -14,6 +14,7 @@ from src.asr import transcribe
 from src.audio import analyze_audio
 from src.score import compute_score
 from src.compose import build_simple_timeline
+from src.cutlist import generate_cutlist
 from src.render import render_timeline
 from src.types import ClipMetadata, TranscriptSegment
 
@@ -76,7 +77,12 @@ def cli():
               help="'all' or comma-separated clip IDs")
 @click.option("--data-root", type=click.Path(path_type=Path), default=Path("data"))
 @click.option("--language", default="zh", help="ASR language code")
-def run(inbox: Path, week: str, select: str, data_root: Path, language: str):
+@click.option("--composer", type=click.Choice(["claude", "simple"]), default="claude",
+              show_default=True,
+              help="'claude' = Claude cut-list (needs ANTHROPIC_API_KEY); "
+                   "'simple' = deterministic no-API builder")
+def run(inbox: Path, week: str, select: str, data_root: Path,
+        language: str, composer: str):
     """End-to-end: ingest -> analyze -> compose -> render."""
     work_dir = data_root / "work" / week
     analyzed_dir = work_dir / "analyzed"
@@ -108,8 +114,11 @@ def run(inbox: Path, week: str, select: str, data_root: Path, language: str):
         click.echo("No clips selected, aborting", err=True)
         sys.exit(1)
 
-    click.echo(f"Composing timeline from {len(selected)} clips...")
-    timeline = build_simple_timeline(selected, week=week)
+    click.echo(f"Composing timeline from {len(selected)} clips ({composer})...")
+    if composer == "claude":
+        timeline = generate_cutlist(selected, week=week)
+    else:
+        timeline = build_simple_timeline(selected, week=week)
     (work_dir / "timeline.json").write_text(timeline.model_dump_json(indent=2), encoding="utf-8")
 
     output_path = output_dir / f"{week}_vlog.mp4"

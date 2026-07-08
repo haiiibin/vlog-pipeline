@@ -36,6 +36,7 @@ def test_end_to_end_three_clips(tmp_path):
         "--select", "all",
         "--data-root", str(data_root),
         "--language", "en",
+        "--composer", "simple",
     ])
     if result.exit_code != 0:
         print(result.output)
@@ -57,6 +58,7 @@ def test_end_to_end_three_clips(tmp_path):
         meta = json.loads((analyzed / f"{cid}.json").read_text())
         assert meta["id"] == cid
         assert meta["score"] >= 40   # has audio + has duration
+        assert "rms_peak" in meta["audio"]
 
     # timeline.json should exist
     assert (data_root / "work" / "test-week" / "timeline.json").exists()
@@ -78,7 +80,8 @@ def test_idempotent_rerun(tmp_path):
     data_root = tmp_path / "data"
     runner = CliRunner()
     args = ["run", "--inbox", str(inbox), "--week", "w1",
-            "--select", "all", "--data-root", str(data_root), "--language", "en"]
+            "--select", "all", "--data-root", str(data_root),
+            "--language", "en", "--composer", "simple"]
 
     r1 = runner.invoke(cli, args)
     assert r1.exit_code == 0
