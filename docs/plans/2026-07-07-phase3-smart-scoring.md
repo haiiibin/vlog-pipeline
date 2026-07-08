@@ -26,7 +26,7 @@
 
 ---
 
-### Task 1: `src/audio.py` — librosa 音频能量分析
+### Task 1: `src/audio.py` -- librosa 音频能量分析
 
 **Files:**
 - Create: `src/audio.py`
@@ -154,7 +154,7 @@ git commit -m "feat: audio.py librosa RMS energy analysis"
 
 ---
 
-### Task 2: `src/score.py` — 音频能量并入打分 + `ClipMetadata.audio` 字段
+### Task 2: `src/score.py` -- 音频能量并入打分 + `ClipMetadata.audio` 字段
 
 **Files:**
 - Modify: `src/types.py:12-24`(ClipMetadata 加 `audio` 字段)
@@ -289,7 +289,7 @@ git commit -m "feat: audio-energy scoring, ClipMetadata.audio field"
 
 ---
 
-### Task 3: `src/cutlist.py` — Claude 剪辑脚本生成
+### Task 3: `src/cutlist.py` -- Claude 剪辑脚本生成
 
 **Files:**
 - Create: `src/cutlist.py`
@@ -524,7 +524,7 @@ git commit -m "feat: cutlist.py Claude cut-list generation (haiku 4.5, structure
 
 ---
 
-### Task 4: `src/pipeline.py` — 接线 audio 步 + `run --composer` 开关
+### Task 4: `src/pipeline.py` -- 接线 audio 步 + `run --composer` 开关
 
 **Files:**
 - Modify: `src/pipeline.py`(imports、`_analyze_one`、`run`)
@@ -637,7 +637,7 @@ git commit -m "feat: pipeline wires audio step + run --composer claude|simple"
 
 ---
 
-### Task 5: `src/server.py` — `compose_fn` 缝, `/api/render` 默认走 Claude
+### Task 5: `src/server.py` -- `compose_fn` 缝, `/api/render` 默认走 Claude
 
 **Files:**
 - Modify: `src/server.py`(import、`create_app` 签名、`render`)
