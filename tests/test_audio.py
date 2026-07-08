@@ -2,6 +2,8 @@
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from src.audio import analyze_audio
 
 
@@ -39,3 +41,9 @@ def test_audio_louder_scores_higher(tmp_path):
     loud = _sine_video(tmp_path / "loud.mp4", volume=1.0)
     quiet = _sine_video(tmp_path / "quiet.mp4", volume=0.2)
     assert analyze_audio(loud)["rms_peak"] > analyze_audio(quiet)["rms_peak"]
+
+
+def test_audio_nonexistent_path_raises(tmp_path):
+    missing = tmp_path / "does_not_exist.mp4"
+    with pytest.raises(RuntimeError):
+        analyze_audio(missing)

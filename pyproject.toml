@@ -34,6 +34,11 @@ python_files = ["test_*.py"]
 filterwarnings = [
     # upstream fastapi/starlette testclient deprecation; revisit on next starlette bump
     "ignore:Using `httpx` with `starlette.testclient` is deprecated",
+    # librosa's audioread dependency imports stdlib modules slated for removal in 3.13;
+    # revisit when audioread drops the fallback or the project bumps past 3.13
+    "ignore:'aifc' is deprecated and slated for removal in Python 3.13",
+    "ignore:'audioop' is deprecated and slated for removal in Python 3.13",
+    "ignore:'sunau' is deprecated and slated for removal in Python 3.13",
 ]
 
 [tool.ruff]
