@@ -313,6 +313,7 @@ nightly_trigger: "22:00"
 # Claude API
 claude_api_key_env: "ANTHROPIC_API_KEY"
 claude_model: "claude-sonnet-4-6"
+# NOTE(Phase 3, 2026-07-07): 实际使用 claude-haiku-4-5, 见 docs/specs/2026-07-07-phase3-smart-scoring-design.md
 
 # Whisper
 whisper_model: "ggml-large-v3"

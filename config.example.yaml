@@ -9,6 +9,10 @@ inbox_source:
   mac: "~/vlog-inbox"
   pc: "C:/Users/<you>/vlog-inbox"
 
+claude:
+  model: "claude-haiku-4-5"          # Phase 3: cut-list generation
+  api_key_env: "ANTHROPIC_API_KEY"   # key read from this env var, never stored here
+
 whisper:
   bin: "C:/tools/whisper.cpp/whisper-cli.exe"   # or /opt/homebrew/bin/whisper-cli
   model: "models/ggml-large-v3.bin"
