@@ -153,7 +153,7 @@ def render_timeline(timeline: Timeline, analyzed_dir: Path, output_path: Path) -
 
         for i, clip in enumerate(timeline.clips):
             meta_path = analyzed_dir / f"{clip.id}.json"
-            cm = ClipMetadata.model_validate_json(meta_path.read_text())
+            cm = ClipMetadata.model_validate_json(meta_path.read_text(encoding="utf-8"))
             seg_path = tmp_dir / f"clip_{i:03d}.mp4"
             render_clip_segment(Path(cm.path), clip.trim, clip.subtitle, seg_path)
             segments.append(seg_path)

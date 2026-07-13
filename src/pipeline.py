@@ -26,7 +26,7 @@ def _analyze_one(video: Path, analyzed_dir: Path, language: str = "zh") -> ClipM
     clip_id = video.stem
     out_json = analyzed_dir / f"{clip_id}.json"
     if out_json.exists():
-        return ClipMetadata.model_validate_json(out_json.read_text())
+        return ClipMetadata.model_validate_json(out_json.read_text(encoding="utf-8"))
 
     cm = build_clip_metadata(video, clip_id=clip_id)
     cm.scenes = detect_scenes(video)
