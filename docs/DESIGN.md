@@ -31,10 +31,10 @@
 
 ### 1.2 非目标
 
-- ❌ 不追求"做爆款" —— 自动化生活 vlog 在抖音的常态是 200-2000 播放
-- ❌ 不追求"完全无人值守发布" —— 抖音上传/BGM 选择仍然手动（避免被判定为批量号）
-- ❌ 不替代用户的"灵魂" —— AI 做苦力（剪、字幕、9:16），用户做关键决策（挑片段、写文案、选封面）
-- ❌ 不每天发布 —— 频率定为 1-2条/周（拟人化频率）
+- ❌ 不追求"做爆款" -- 自动化生活 vlog 在抖音的常态是 200-2000 播放
+- ❌ 不追求"完全无人值守发布" -- 抖音上传/BGM 选择仍然手动（避免被判定为批量号）
+- ❌ 不替代用户的"灵魂" -- AI 做苦力（剪、字幕、9:16），用户做关键决策（挑片段、写文案、选封面）
+- ❌ 不每天发布 -- 频率定为 1-2条/周（拟人化频率）
 
 ---
 
@@ -47,7 +47,7 @@
 - **批量节省时间**：10个素材 → 5分钟得到能看的成片
 
 ### 2.2 凑合（60-75分）
-- "精彩瞬间"挑选（算法用音量/人脸做代理指标，会漏掉 30-40% 的真亮点 —— 这就是为什么有"候选池+人工勾选"机制）
+- "精彩瞬间"挑选（算法用音量/人脸做代理指标，会漏掉 30-40% 的真亮点 -- 这就是为什么有"候选池+人工勾选"机制）
 - 节奏感（AI 生成的剪辑顺序合理但不够"踩点"，靠剪映"自动卡点"补救）
 - 抖音味钩子文案（Claude 写的偏文艺，缺少"我妈第一次……"这种土味）
 
@@ -215,7 +215,7 @@
 
 ## 7. 数据格式
 
-### 7.1 `analyzed/IMG_1234.json` —— 单个素材片段的分析结果
+### 7.1 `analyzed/IMG_1234.json` -- 单个素材片段的分析结果
 
 ```json
 {
@@ -253,7 +253,7 @@
 }
 ```
 
-### 7.2 `selected.json` —— 用户从 UI 勾选的结果
+### 7.2 `selected.json` -- 用户从 UI 勾选的结果
 
 ```json
 {
@@ -263,7 +263,7 @@
 }
 ```
 
-### 7.3 `timeline.json` —— Claude 生成的剪辑脚本（Render 的输入）
+### 7.3 `timeline.json` -- Claude 生成的剪辑脚本（Render 的输入）
 
 ```json
 {
@@ -341,15 +341,15 @@ subtitle:
 
 `~/Library/LaunchAgents/` 下两个 plist：
 
-- `com.vlog.daily-analyze.plist` —— 每晚 22:00 跑分析（不渲染）
-- `com.vlog.weekly-review.plist` —— 每周六 09:00 弹候选池 UI
+- `com.vlog.daily-analyze.plist` -- 每晚 22:00 跑分析（不渲染）
+- `com.vlog.weekly-review.plist` -- 每周六 09:00 弹候选池 UI
 
 ### 9.2 PC 端（Windows Task Scheduler）
 
 `setup_pc.ps1` 注册等价的两个任务：
 
-- `VlogPipeline-DailyAnalyze` —— Daily 22:00
-- `VlogPipeline-WeeklyReview` —— Weekly Saturday 09:00
+- `VlogPipeline-DailyAnalyze` -- Daily 22:00
+- `VlogPipeline-WeeklyReview` -- Weekly Saturday 09:00
 
 ---
 
@@ -620,7 +620,7 @@ PC 没有 iCloud 自动同步 → 三个选项：
 
 ## 17. 变更日志
 
-- **2026-05-07** — v1.0 初版（Allen + Claude 协作 brainstorming）
+- **2026-05-07** -- v1.0 初版（Allen + Claude 协作 brainstorming）
 
 ---
 

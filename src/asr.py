@@ -1,8 +1,8 @@
 """whisper.cpp subprocess wrapper.
 
 Requires env vars:
-    WHISPER_BIN   — path to whisper.cpp `whisper-cli` (or older `main`) binary
-    WHISPER_MODEL — path to ggml model (e.g. ggml-large-v3.bin)
+    WHISPER_BIN   -- path to whisper.cpp `whisper-cli` (or older `main`) binary
+    WHISPER_MODEL -- path to ggml model (e.g. ggml-large-v3.bin)
 """
 import json
 import os

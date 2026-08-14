@@ -17,7 +17,7 @@ def test_parse_timestamp_basic():
 
 @skip_if_no_whisper
 def test_transcribe_silent_video_returns_empty(sample_video):
-    """A 5-second 440Hz tone has no speech — transcription should be empty or near-empty."""
+    """A 5-second 440Hz tone has no speech -- transcription should be empty or near-empty."""
     segments = transcribe(sample_video, language="en")
     # Whisper sometimes hallucinates on tones; assert structure not exact emptiness.
     assert isinstance(segments, list)

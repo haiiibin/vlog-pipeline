@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Python `>=3.11`; ruff line-length 100, target `py311`; 每个 commit 前 `uv run ruff check .` 干净。
-- **绝不使用 em dash(— 或 ——)**, 任何文件任何位置(代码注释、文档、commit message)。用逗号/冒号/圆括号/句号替代。
+- **绝不使用 em dash(U+2014, 单个或成对)**, 任何文件任何位置(代码注释、文档、commit message)。用逗号/冒号/圆括号/句号替代。
 - 模型 id 精确为 `claude-haiku-4-5`, 不用其他。
 - **Claude 失败即停, 无启发式兜底**(DESIGN §11.1 规则 3): 任何 Anthropic 错误向上传播, 不退回 `build_simple_timeline`。
 - 测试永不触真实 Anthropic API、真实 whisper、真实用户素材; 视频一律 ffmpeg lavfi 合成。
@@ -783,7 +783,7 @@ claude_model: "claude-sonnet-4-6"
 
 - [ ] **Step 4: 扫 em dash + 个人信息**
 
-Run: `grep -rn '—' config.example.yaml README.md docs/DESIGN.md | grep -v '^docs/DESIGN.md' || echo OK`
+Run: `grep -rnP '\x{2014}' config.example.yaml README.md docs/DESIGN.md | grep -v '^docs/DESIGN.md' || echo OK`
 Expected: 本次改动的文件里无新增 em dash(DESIGN.md 历史正文的 em dash 属已知项, 由 going-public-checklist 在转公开时统一清理, 不在本 task 范围)。确认无真实 key、无本机绝对路径写入。
 
 - [ ] **Step 5: commit**
