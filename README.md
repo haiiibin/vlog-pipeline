@@ -1,5 +1,9 @@
 # vlog-pipeline
 
+[![CI](https://github.com/haiiibin/vlog-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/haiiibin/vlog-pipeline/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://github.com/haiiibin/vlog-pipeline/blob/main/pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Turn a week of raw phone clips into a 1-3 minute vertical (9:16) vlog draft, automatically:
 scene detection, Chinese ASR subtitles, heuristic scoring, an ffmpeg compositor, and a local
 web UI where you pick which clips make the cut.
