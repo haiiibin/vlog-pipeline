@@ -1,0 +1,35 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Commit or branch
+      placeholder: "main @ 09befd7 (git rev-parse --short HEAD)"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Python / ffmpeg / OS
+      placeholder: "Python 3.12, ffmpeg 7.1, Windows 11"
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: >
+        Which command did you run, with which flags? If the problem depends on
+        the clips, describe them (container, codec, duration, orientation) or
+        attach a short synthetic clip. Do not attach personal footage.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs. actual behavior
+      description: Include the full error message or traceback if there is one.
+    validations:
+      required: true

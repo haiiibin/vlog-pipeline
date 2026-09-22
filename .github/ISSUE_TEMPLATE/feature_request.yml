@@ -1,0 +1,20 @@
+name: Feature request
+description: Suggest a pipeline stage, scoring signal, or web UI improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: >
+        Describe the step in the clips-to-draft workflow where the pipeline
+        falls short today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: What would the command, option, or UI change look like?
+    validations:
+      required: true
