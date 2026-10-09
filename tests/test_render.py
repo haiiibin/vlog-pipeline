@@ -1,9 +1,11 @@
 import json
 import subprocess
 from pathlib import Path
+
 import pytest
+
 from src.render import render_clip_segment, render_text_card, render_timeline
-from src.types import Timeline, TimelineClip, TextCard, ClipMetadata
+from src.types import ClipMetadata, TextCard, Timeline, TimelineClip
 
 
 def _ffprobe_duration(path: Path) -> float:

@@ -1,5 +1,6 @@
 import pytest
-from src.probe import get_raw_metadata, build_clip_metadata, generate_gif_preview
+
+from src.probe import build_clip_metadata, generate_gif_preview, get_raw_metadata
 
 
 def test_get_raw_metadata_returns_streams_and_format(sample_video):

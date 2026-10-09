@@ -1,5 +1,5 @@
 """Phase 1 simple timeline builder. Phase 3 replaces this with Claude API."""
-from src.types import ClipMetadata, Timeline, TimelineClip, TextCard
+from src.types import ClipMetadata, TextCard, Timeline, TimelineClip
 
 HOOK_TEXT = "本周精选"
 HOOK_DURATION = 2.5

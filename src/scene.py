@@ -1,6 +1,8 @@
 """Scene boundary detection via PySceneDetect."""
 from pathlib import Path
-from scenedetect import detect, ContentDetector
+
+from scenedetect import ContentDetector, detect
+
 from src.probe import get_raw_metadata
 
 

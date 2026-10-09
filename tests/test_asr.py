@@ -1,6 +1,8 @@
 import os
+
 import pytest
-from src.asr import transcribe, parse_timestamp
+
+from src.asr import parse_timestamp, transcribe
 
 WHISPER_AVAILABLE = bool(os.environ.get("WHISPER_BIN") and os.environ.get("WHISPER_MODEL"))
 skip_if_no_whisper = pytest.mark.skipif(

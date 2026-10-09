@@ -1,4 +1,4 @@
-from src.types import ClipMetadata, Timeline, TimelineClip, TextCard, TranscriptSegment
+from src.types import ClipMetadata, TextCard, Timeline, TimelineClip, TranscriptSegment
 
 
 def test_clip_metadata_round_trip():

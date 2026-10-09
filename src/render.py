@@ -3,7 +3,8 @@ import platform
 import subprocess
 import tempfile
 from pathlib import Path
-from src.types import Timeline, ClipMetadata
+
+from src.types import ClipMetadata, Timeline
 
 TARGET_W = 1080
 TARGET_H = 1920

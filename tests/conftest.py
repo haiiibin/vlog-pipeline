@@ -1,6 +1,7 @@
 """Pytest fixtures: generate synthetic videos via ffmpeg so we don't bundle binary fixtures."""
 import subprocess
 from pathlib import Path
+
 import pytest
 
 

@@ -1,4 +1,5 @@
 import pytest
+
 from src.scene import detect_scenes
 
 

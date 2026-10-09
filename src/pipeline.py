@@ -6,16 +6,17 @@ Usage:
 import os
 import sys
 from pathlib import Path
+
 import click
 
-from src.probe import build_clip_metadata, generate_gif_preview, get_raw_metadata
-from src.scene import detect_scenes
 from src.asr import transcribe
 from src.audio import analyze_audio
-from src.score import compute_score
 from src.compose import build_simple_timeline
 from src.cutlist import generate_cutlist
+from src.probe import build_clip_metadata, generate_gif_preview, get_raw_metadata
 from src.render import render_timeline
+from src.scene import detect_scenes
+from src.score import compute_score
 from src.types import ClipMetadata, TranscriptSegment
 
 VIDEO_EXTS = {".mov", ".mp4", ".m4v"}

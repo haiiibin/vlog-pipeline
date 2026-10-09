@@ -2,7 +2,9 @@
 import json
 import subprocess
 from pathlib import Path
+
 from click.testing import CliRunner
+
 from src.pipeline import cli
 
 
